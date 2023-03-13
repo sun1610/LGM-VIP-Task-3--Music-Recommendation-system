@@ -1,0 +1,129 @@
+# Task 3: Music Recommendation
+
+import os
+import numpy as np
+import pandas as pd
+
+import seaborn as sns
+import plotly.express as px 
+import matplotlib.pyplot as plt
+%matplotlib inline
+import tensorflow as tf
+
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+from sklearn.metrics import euclidean_distances
+from scipy.spatial.distance import cdist
+from matplotlib import pyplot as plt
+from matplotlib.pyplot import plot
+from sklearn.model_selection import train_test_split
+
+import warnings
+warnings.filterwarnings("ignore")
+
+data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv")
+genre_data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\data_by_genres.csv")
+year_data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\data_by_year.csv")
+artist_data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\data_by_artist.csv\data_by_artist.csv")
+
+print(data.info())
+print(genre_data.info())
+print(year_data.info())
+print(artist_data.info())
+
+Heat Map  :- Its graphical representation of data where values are depicted by color
+
+year_data.pivot('year','duration_ms','energy').head()
+plt.figure(figsize=(20,100))
+pivot_table = year_data.pivot('year','duration_ms','energy')
+plt.xlabel('year', size = 14)
+plt.ylabel('duration_ms', size = 14)
+plt.title('Energy over time', size = 14)
+sns.heatmap(year_data, annot=True, linewidths=.4,linecolor='black', square=True, cmap='Greens_r',cbar=True);
+
+Correlation  Matrix :- A table which displays the correlation coefficient for different variables 
+
+df = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv (1)\dataset.csv")
+corr=df.corr()
+corr
+
+plot_df = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv (1)\dataset.csv")
+plot_df.head()
+plot_df['explicit'].value_counts(dropna = False)
+plot_df.boxplot(column='popularity', by ='explicit')
+plt.title('Spotify tracks dataset ')
+plt.suptitle('')
+
+sns.boxplot(x='explicit', y='popularity', data=plot_df, palette='Blues' )
+
+data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv (1)\dataset.csv")
+x = data['duration_ms']
+y = data['popularity']
+plt.figure(figsize=(10,8))
+sns.regplot(x, y,color="blue", truncate=True)
+
+Outlier Plots:- An outlier is a data point which is significantly far away from other data points. The Inter-quartile Range(IQR) is used to detect and remove outliers.
+
+def outliers(df, ft):
+    Q1 = df[ft].quantile(0.25)
+    Q3 = df[ft].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 = 1.5 * IQR
+    ls = df.index[(df[ft] < lower_bound) | (df[ft] > upper_bound)]
+    return ls
+index_list = []
+for feature in ['popularity']:
+    index_list.extend(outliers(plot_df, feature))
+def remove(df, ls):
+    ls = sorted(set(ls))
+    df = df.drop(ls)
+    return df
+cleaned_df = remove(plot_df, index_list)
+sns.boxplot(x='explicit', y='popularity', data = cleaned_df, palette='Blues')
+
+Pattern of interests
+
+data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv (1)\dataset.csv")
+data.head()
+data.columns
+data = data[['popularity','duration_ms','danceability', 'energy',
+       'loudness', 'mode', 'speechiness', 'acousticness',
+       'instrumentalness', 'liveness', 'valence', 'tempo', 'time_signature']]
+data.head()
+mean = np.mean(data)
+std = np.std(data)
+plt.plot(data)
+plt.figure(figsize=(10,10))
+plt.show()
+
+Trends of Time and Space 
+
+data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv (1)\dataset.csv")
+data = data[['time_signature', 'duration_ms']]
+data = pd.DataFrame(data)
+
+plt.scatter(df['time_signature'], df['duration_ms'])
+plt.xlabel('Time')
+plt.ylabel('Duration')
+plt.figure(figsize=(10,10))
+plt.show()
+
+Train, Validation & test 
+
+data = pd.read_csv(r"C:\Users\HP\OneDrive\Documents\LGM-VIP\Task-3 Music Recomandation\dataset.csv (1)\dataset.csv")
+data.head()
+
+train_data, val_and_test_data = train_test_split(data, test_size=0.3)
+val_data, test_data = train_test_split(val_and_test_data, test_size=0.5)
+print(train_data.shape)  
+print(val_data.shape)    
+print(test_data.shape) 
+
+print(train_data.head())  
+print(val_data.head())    
+print(test_data.head())
+
